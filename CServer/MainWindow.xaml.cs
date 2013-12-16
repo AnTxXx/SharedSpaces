@@ -17,6 +17,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     using System.Net;
     using System.Text;
     using System.Threading;
+    using System.Collections.Specialized;
     
 
     public class tinySkeleton
@@ -296,15 +297,18 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
         public void sendSkeletons()
         {
+            const string url = "http://9ifvp.w4yserver.at/uni/sharedSpace/postSkeletons.php";
             while (trun)
             {
+                
                 if (tinySkeletons.Count > 0)
                 {
-                    const string url = "http://9ifvp.w4yserver.at/uni/sharedSpace/postSkeletons.php";
+                    
                     HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(url);
                     myRequest.Method = "POST";
                     myRequest.ContentType = "application/json";
                     string wow = JsonConvert.SerializeObject(tinySkeletons);
+                    Debug.Write(wow);
                     byte[] byteArray = Encoding.UTF8.GetBytes(wow);
                     myRequest.ContentLength = byteArray.Length;
 
@@ -328,8 +332,20 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     reader.Close();
                     dataStream.Close();
                     response.Close();
-                    Thread.Sleep(500);
+                    
                 }
+                Thread.Sleep(500);
+                /*
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection();
+                    data["client_id"] = "500";
+                    data["password"] = "myPassword";
+
+                    var response = wb.UploadValues(url, "POST", data);
+                    Debug.Write(response);
+                }
+                 */
             }
             
         }
