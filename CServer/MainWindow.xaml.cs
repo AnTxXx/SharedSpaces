@@ -10,6 +10,30 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     using System.Windows;
     using System.Windows.Media;
     using Microsoft.Kinect;
+    using System.Diagnostics;
+    using System;
+    using Newtonsoft.Json;
+    using System.Collections.Generic;
+    using System.Net;
+    using System.Text;
+    using System.Threading;
+    
+
+    public class tinySkeleton
+    {
+         
+        public int client_ID = 1;
+        public int skeleton_ID;
+        public float xPos, zPos, orientation;
+
+        public tinySkeleton(int inp_skeleton_ID, float inpxPos, float inpzPos, float inpOrientation)
+        {
+            this.skeleton_ID = inp_skeleton_ID;
+            this.xPos = inpxPos;
+            this.zPos = inpzPos;
+            this.orientation = inpOrientation;
+        }
+    }
 
     /// <summary>
     /// Interaction logic for MainWindow.xaml
@@ -84,6 +108,11 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <summary>
         /// Initializes a new instance of the MainWindow class.
         /// </summary>
+        /// 
+
+        private List<tinySkeleton> tinySkeletons = new List<tinySkeleton>();
+        private bool trun = true;
+
         public MainWindow()
         {
             InitializeComponent();
@@ -136,6 +165,10 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// <param name="e">event arguments</param>
         private void WindowLoaded(object sender, RoutedEventArgs e)
         {
+
+            Thread t = new Thread(sendSkeletons);
+            t.Start();
+
             // Create the drawing group we'll use for drawing
             this.drawingGroup = new DrawingGroup();
 
@@ -204,6 +237,9 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         private void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             Skeleton[] skeletons = new Skeleton[0];
+            tinySkeletons = new List<tinySkeleton>();
+
+            
 
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
             {
@@ -225,8 +261,14 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                     {
                         RenderClippedEdges(skel, dc);
 
+
                         if (skel.TrackingState == SkeletonTrackingState.Tracked)
                         {
+
+                            //Debug.Write("X Rotation: " + skel.BoneOrientations[JointType.HipCenter].AbsoluteRotation.Quaternion.X + " ");
+                            //Debug.Write("Y Rotation: " + skel.BoneOrientations[JointType.HipCenter].AbsoluteRotation.Quaternion.Y + " ");
+                            //Debug.Write("Z Rotation: " + skel.BoneOrientations[JointType.HipCenter].AbsoluteRotation.Quaternion.Z + "\n");
+                            tinySkeletons.Add(getTinySkeleton(skel));
                             this.DrawBonesAndJoints(skel, dc);
                         }
                         else if (skel.TrackingState == SkeletonTrackingState.PositionOnly)
@@ -246,6 +288,63 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             }
         }
 
+        public tinySkeleton getTinySkeleton(Skeleton skel)
+        {
+            tinySkeleton tiny = new tinySkeleton(skel.TrackingId, skel.Joints[JointType.HipCenter].Position.X, skel.Joints[JointType.HipCenter].Position.Y, 0.0f);
+            return tiny;
+        }
+
+        public void sendSkeletons()
+        {
+            while (trun)
+            {
+                if (tinySkeletons.Count > 0)
+                {
+                    const string url = "http://9ifvp.w4yserver.at/uni/sharedSpace/postSkeletons.php";
+                    HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(url);
+                    myRequest.Method = "POST";
+                    myRequest.ContentType = "application/json";
+                    string wow = JsonConvert.SerializeObject(tinySkeletons);
+                    byte[] byteArray = Encoding.UTF8.GetBytes(wow);
+                    myRequest.ContentLength = byteArray.Length;
+
+                    Stream dataStream = myRequest.GetRequestStream();
+                    // Write the data to the request stream.
+                    dataStream.Write(byteArray, 0, byteArray.Length);
+                    // Close the Stream object.
+                    dataStream.Close();
+                    WebResponse response = myRequest.GetResponse();
+                    // Display the status.
+                    Console.WriteLine(((HttpWebResponse)response).StatusDescription);
+                    // Get the stream containing content returned by the server.
+                    dataStream = response.GetResponseStream();
+                    // Open the stream using a StreamReader for easy access.
+                    StreamReader reader = new StreamReader(dataStream);
+                    // Read the content.
+                    string responseFromServer = reader.ReadToEnd();
+                    // Display the content.
+                    Console.WriteLine(responseFromServer);
+                    // Clean up the streams.
+                    reader.Close();
+                    dataStream.Close();
+                    response.Close();
+                    Thread.Sleep(500);
+                }
+            }
+            
+        }
+
+
+        /*public float AngleBetweenTwoVectors(Vector3 vectorA, Vector3 vectorB)
+        {
+            float dotProduct = 0.0f;
+            dotProduct = Vector3.Dot(vectorA, vectorB);
+
+            return (float)Math.Acos(dotProduct);
+        }*/
+
+
+        
         /// <summary>
         /// Draws a skeleton's bones and joints
         /// </summary>
