@@ -15,14 +15,40 @@ class SpacesAPI {
         $this->db->close();
     }
 
-
+	
+    // circular movement -> one full circle every 8 sec.
+    function getCircularSkeleton() {
+    	
+    	$r_size = 0.9;
+    	$millis = fmod(microtime(true), 8);
+    	$deg = 360 * ($millis/8);
+    	
+    	
+    	
+    	
+    	$json_result["client_ID1"]=array();    	
+    	$json_result["client_ID1"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => $r_size * cos($deg), "zPos" => $r_size * sin($deg), "orientation" => $deg);
+    	
+    	
+    	
+    	$r_size = 0.5;
+    	$deg = 360 - (360 * ($millis/8));
+    	
+    	$json_result["client_ID1"]["skeleton_ID2"] = array("skeleton_ID" => 1, "xPos" => $r_size * cos($deg), "zPos" => $r_size * sin($deg), "orientation" => $deg);
+    	
+    	
+    	$this->sendResponse(200, json_encode($json_result), "application/json");
+    	
+    }
+    
+    
     // Main method to redeem a code
     function getAllSkeletons() {   	
     	
     	
     	$tstamp = gmdate('Y-m-d H:i:s', (strtotime("now") + 3580));
     	$query = 'SELECT client_ID, skeleton_ID, xPos, zPos, orientation, tstamp FROM skeletons WHERE tstamp > \'' . $tstamp . '\'';
-     	echo $query;
+     	//echo $query;
     	
     	$stmt = $this->db->prepare($query);
     	$stmt->execute();
