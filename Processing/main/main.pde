@@ -39,7 +39,7 @@ void draw() {
 JSONObject json;
 int nextchange = 0;
 boolean threadrun=true;
-int client_id = 1;
+int client_id = 2;
 static JSONObject[] skeletons1 = new JSONObject[6];
 static int JSONsize = 0;
 public static JSONObject[] getSkeletons(){
@@ -53,11 +53,7 @@ public static int getJSONsize(){
 void sexyFunction() {
   while(threadrun){
     if(millis()>nextchange){
-<<<<<<< HEAD
       json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getCircularSkeletons.php");
-=======
-      json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getSkeletons.php");
->>>>>>> 9de339eacdc7ff1d204f77c98e0b53080441b421
       
       //Save Skeletons from Webserver to datastructure
       
@@ -75,7 +71,7 @@ void sexyFunction() {
       
       
       //println("running" + millis());
-      nextchange = millis()+500;
+      nextchange = millis()+20;
     }
     
   }

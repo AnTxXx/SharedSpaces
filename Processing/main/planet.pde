@@ -63,16 +63,11 @@ class Planet{
     
     public void movePlanet(int xPos, int yPos, int angle){
       
-      
-      
       int xPos_old = this.xPos;
       int yPos_old = this.yPos;
       
       
       //xPos <= xPos_old + 50 && xPos >= xPos_old - 50 && yPos <= yPos_old + 50 && yPos >= yPos - 50
-      
-      
-      
       
       if(xPos_old == xPos && yPos_old == yPos){
         idle_counter++;

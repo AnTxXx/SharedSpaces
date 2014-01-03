@@ -8,8 +8,6 @@ class Moon{
     color col;
     public Moon(color col, Planet planet) {
       this.col = col;
-      
-      
       this.xPos = 50;
       this.yPos = 50;  
       this.planet = planet;
