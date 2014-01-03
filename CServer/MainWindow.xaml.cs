@@ -17,6 +17,9 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     using System.Net;
     using System.Text;
     using System.Threading;
+    using System.Web;
+    using System.Net;
+    using System.Collections;
     using System.Collections.Specialized;
     
 
@@ -113,6 +116,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
         private List<tinySkeleton> tinySkeletons = new List<tinySkeleton>();
         private bool trun = true;
+        private ArrayList lastDegrees = new ArrayList();
 
         public MainWindow()
         {
@@ -291,8 +295,56 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
 
         public tinySkeleton getTinySkeleton(Skeleton skel)
         {
-            tinySkeleton tiny = new tinySkeleton(skel.TrackingId, skel.Joints[JointType.HipCenter].Position.X, skel.Joints[JointType.HipCenter].Position.Y, 0.0f);
+            float degree = 0.0f;
+            Debug.Write("Absolute: " + skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + "\n");
+            if (facingFront(skel))
+            {
+                out_debug.Text = "Front";
+                degree = smoothMe(ref lastDegrees, (skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + skel.BoneOrientations[JointType.HipRight].AbsoluteRotation.Quaternion.Z) / 4 * 360, 20);
+                if (degree < 0)
+                {
+                    degree += 360;
+                }
+            }
+            else
+            {
+                out_debug.Text = "Back";
+                degree = smoothMe(ref lastDegrees, (skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + skel.BoneOrientations[JointType.HipRight].AbsoluteRotation.Quaternion.Z) / 4 * 360, 20);
+                degree += 180;
+            }
+
+            tinySkeleton tiny = new tinySkeleton(skel.TrackingId, skel.Joints[JointType.HipCenter].Position.X, skel.Joints[JointType.HipCenter].Position.Y, degree);
+            out_debug.Text += " " + degree.ToString();
+            
             return tiny;
+        }
+
+        public bool facingFront(Skeleton skel)
+        {
+            if (((skel.Joints[JointType.WristLeft].Position.Z < skel.Joints[JointType.HipLeft].Position.Z) ||
+                (skel.Joints[JointType.WristRight].Position.Z < skel.Joints[JointType.HipRight].Position.Z)) )
+            {
+                return true;
+            }
+            return false;
+        }
+
+        public float smoothMe(ref ArrayList inpValues, float newValue, int countAverage)
+        {
+            float average = 0.0f;
+            if (inpValues.Count == countAverage)
+            {
+                inpValues.RemoveAt(0);  
+            }
+
+            inpValues.Add(newValue);
+
+            for (int i = 0; i < inpValues.Count; i++)
+            {
+                average += (float)inpValues[i];
+            }
+            average = average / inpValues.Count;
+            return average;
         }
 
         public void sendSkeletons()
@@ -300,54 +352,14 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             const string url = "http://9ifvp.w4yserver.at/uni/sharedSpace/postSkeletons.php";
             while (trun)
             {
-                
                 if (tinySkeletons.Count > 0)
                 {
-                    
-                    HttpWebRequest myRequest = (HttpWebRequest)WebRequest.Create(url);
-                    myRequest.Method = "POST";
-                    myRequest.ContentType = "application/json";
-                    string wow = JsonConvert.SerializeObject(tinySkeletons);
-                    Debug.Write(wow);
-                    byte[] byteArray = Encoding.UTF8.GetBytes(wow);
-                    myRequest.ContentLength = byteArray.Length;
-
-                    Stream dataStream = myRequest.GetRequestStream();
-                    // Write the data to the request stream.
-                    dataStream.Write(byteArray, 0, byteArray.Length);
-                    // Close the Stream object.
-                    dataStream.Close();
-                    WebResponse response = myRequest.GetResponse();
-                    // Display the status.
-                    Console.WriteLine(((HttpWebResponse)response).StatusDescription);
-                    // Get the stream containing content returned by the server.
-                    dataStream = response.GetResponseStream();
-                    // Open the stream using a StreamReader for easy access.
-                    StreamReader reader = new StreamReader(dataStream);
-                    // Read the content.
-                    string responseFromServer = reader.ReadToEnd();
-                    // Display the content.
-                    Console.WriteLine(responseFromServer);
-                    // Clean up the streams.
-                    reader.Close();
-                    dataStream.Close();
-                    response.Close();
-                    
+                    Dictionary<string, string> yoman = new Dictionary<string, string>();
+                    yoman.Add("jsonString", JsonConvert.SerializeObject(tinySkeletons));
+                    Debug.Write(HttpPostRequest(url, yoman));
+                    Thread.Sleep(20);
                 }
-                Thread.Sleep(500);
-                /*
-                using (var wb = new WebClient())
-                {
-                    var data = new NameValueCollection();
-                    data["client_id"] = "500";
-                    data["password"] = "myPassword";
-
-                    var response = wb.UploadValues(url, "POST", data);
-                    Debug.Write(response);
-                }
-                 */
             }
-            
         }
 
 
@@ -359,7 +371,43 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             return (float)Math.Acos(dotProduct);
         }*/
 
+        private string HttpPostRequest(string url, Dictionary<string, string> postParameters)
+        {
+            string postData = "";
 
+            foreach (string key in postParameters.Keys)
+            {
+                postData += HttpUtility.UrlEncode(key) + "="
+                      + HttpUtility.UrlEncode(postParameters[key]) + "&";
+            }
+
+            HttpWebRequest myHttpWebRequest = (HttpWebRequest)HttpWebRequest.Create(url);
+            myHttpWebRequest.Method = "POST";
+
+            byte[] data = Encoding.ASCII.GetBytes(postData);
+
+            myHttpWebRequest.ContentType = "application/x-www-form-urlencoded";
+            myHttpWebRequest.ContentLength = data.Length;
+
+            Stream requestStream = myHttpWebRequest.GetRequestStream();
+            requestStream.Write(data, 0, data.Length);
+            requestStream.Close();
+
+            HttpWebResponse myHttpWebResponse = (HttpWebResponse)myHttpWebRequest.GetResponse();
+
+            Stream responseStream = myHttpWebResponse.GetResponseStream();
+
+            StreamReader myStreamReader = new StreamReader(responseStream, Encoding.Default);
+
+            string pageContent = myStreamReader.ReadToEnd();
+
+            myStreamReader.Close();
+            responseStream.Close();
+
+            myHttpWebResponse.Close();
+
+            return pageContent;
+        }
         
         /// <summary>
         /// Draws a skeleton's bones and joints
