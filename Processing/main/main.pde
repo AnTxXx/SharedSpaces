@@ -53,7 +53,7 @@ public static int getJSONsize(){
 void sexyFunction() {
   while(threadrun){
     if(millis()>nextchange){
-      json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/stage_getSkeletons.php");
+      json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getSkeletons.php");
       
       //Save Skeletons from Webserver to datastructure
       
@@ -71,7 +71,7 @@ void sexyFunction() {
       
       
       //println("running" + millis());
-      nextchange = millis()+20;
+      nextchange = millis()+500;
     }
     
   }
