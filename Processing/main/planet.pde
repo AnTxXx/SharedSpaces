@@ -50,6 +50,7 @@ class Planet{
         //println(angle);
 
         pushMatrix();
+        println("xPos: " + xPos + " yPos " + yPos);
         translate(xPos, yPos);
         rotate(radians(angle));
         
