@@ -106,8 +106,6 @@ class SolarSystem{
                   if(planet_1.isPulsating() == false){
                     planet_1.togglePulse();
                   }
-                  
-                 
                 }else{
                   if(planet_1.isPulsating() == true){
                     //set planets to normal size
@@ -138,7 +136,7 @@ class SolarSystem{
           
           
           //***uncomment for kinect-movement****//
-          //planets.get(planet_id).movePlanet((int)planet_xPos, (int)planet_yPos, (int)planet_angle);
+          planets.get(planet_id).movePlanet((int)planet_xPos, (int)planet_yPos, (int)planet_angle);
           try {
             noStroke();
             //println(planets.size());
