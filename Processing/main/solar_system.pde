@@ -107,30 +107,38 @@ class SolarSystem{
                     planet_1.togglePulse();
                   }
                   
-                 //wenn keine überschneidung pulsieren stoppen
-                }else if(planet_1.getIdle() >= 100){
-                  
-                  if(planet_1.isGrowing() == false){
-                    
-                    planet_1.toggleGrow();
-                  }
-                  //TODO bei Bewegung wieder kleiner
+                 
                 }else{
                   if(planet_1.isPulsating() == true){
                     //set planets to normal size
                     planet_1.togglePulse();
                   }
-                  if(planet_1.isGrowing() == true){
+                } 
+               
+               
+               if(planet_1.getIdle() >= 130){
+                  
+                  if(planet_1.isGrowing() == false){
+                    
                     planet_1.toggleGrow();
+                    
                   }
-                }  
+                  //TODO bei Bewegung wieder kleiner
+                }else{
+                  if(planet_1.isGrowing() == true){
+                    
+                    planet_1.toggleGrow();
+                    
+                  }
+                }
+                
             }
           }
           
           
           
           //***uncomment for kinect-movement****//
-          planets.get(planet_id).movePlanet((int)planet_xPos, (int)planet_yPos, (int)planet_angle);
+          //planets.get(planet_id).movePlanet((int)planet_xPos, (int)planet_yPos, (int)planet_angle);
           try {
             noStroke();
             //println(planets.size());

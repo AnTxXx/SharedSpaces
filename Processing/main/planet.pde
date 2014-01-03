@@ -36,14 +36,12 @@ class Planet{
         
         if(pulsating == true){
           pulsate();
-        }else if(pulsating == false){
-          resetSize();
         }else if(growing == true){
           grow();
-          
+        }else if(pulsating == false){
+          resetSize();
         }else if (growing == false){
-          //resetSize();
-          
+          resetSize();
         }
         
         ellipse(xPos,yPos,size,size);
@@ -69,6 +67,12 @@ class Planet{
       
       int xPos_old = this.xPos;
       int yPos_old = this.yPos;
+      
+      
+      //xPos <= xPos_old + 50 && xPos >= xPos_old - 50 && yPos <= yPos_old + 50 && yPos >= yPos - 50
+      
+      
+      
       
       if(xPos_old == xPos && yPos_old == yPos){
         idle_counter++;
@@ -149,7 +153,9 @@ class Planet{
     
     private void grow(){
       if(size < 80){
-        size++;
+        if(idle_counter%10 == 0){
+          size++;
+        }  
       }
     }
     
