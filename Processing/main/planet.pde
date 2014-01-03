@@ -17,13 +17,17 @@ class Planet{
     
     private int idle_counter = 0;
     
-    public Planet(int id, int x, int y, color col) {
+    private long tStamp;
+    
+    public Planet(int id, int x, int y, color col, long tStamp) {
 
       this.col = col;
       this.xPos = x;
       this.yPos = y;
       
       this.id = id;
+      
+      this.tStamp = tStamp;
       
       moon = new Moon(this.col, this);
       
@@ -50,7 +54,11 @@ class Planet{
         //println(angle);
 
         pushMatrix();
-        println("xPos: " + xPos + " yPos " + yPos);
+        
+        //fill(0);
+        //text ( id + " || xPos: " + xPos + " yPos " + yPos ,10,100); 
+        
+        println(id + " || xPos: " + xPos + " yPos " + yPos);
         translate(xPos, yPos);
         rotate(radians(angle));
         
@@ -183,5 +191,13 @@ class Planet{
     
     public int getIdle(){
       return idle_counter;
+    }
+    
+    public long getTStamp(){
+      return tStamp;
+    }
+    
+    public void setTStamp(long tStamp) {
+      this.tStamp = tStamp;
     }
 }

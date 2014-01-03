@@ -1,4 +1,7 @@
 import java.util.Map;
+import java.util.Date;
+import java.util.Iterator;
+
 class SolarSystem{
     
      /*for poor key-processing*/
@@ -11,6 +14,8 @@ class SolarSystem{
     JSONObject[] skeletons1 = new JSONObject[6];
     private  int CANVAS_X, CANVAS_Y;
     ArrayList<String> planet_colors = new ArrayList<String>();
+    
+    private final int pulseArea = 120;
     
     public SolarSystem(int CANVAS_X, int CANVAS_Y) {
      
@@ -29,12 +34,12 @@ class SolarSystem{
     //1 = up, 2 = d, 3 = r, 4 = l
     public void moveKey(int dir){
       if(planets.size() > 0){
-        planets.get(key_id).moveKey(dir);
+        //planets.get(key_id).moveKey(dir);
       }
     }
     public void rotateKey(int angle){
       if(planets.size() > 0){
-        planets.get(key_id).rotateKey(angle);
+        //planets.get(key_id).rotateKey(angle);
       }
     }
     
@@ -52,6 +57,11 @@ class SolarSystem{
     
     public void updatePlanets(){
       skeletons1 = getSkeletons();
+      
+      Date d = new Date();
+      long tStamp=d.getTime()/1000;
+	  
+	  // alle Planeten vom Webservice in lokale Datenstruktur (planets) hängen
       for(int i = 1; i <= getJSONsize(); i++) {
         
         //get Skeleton-Values
@@ -69,7 +79,7 @@ class SolarSystem{
           //****for poor key-processing****//
           key_id = planet_id;
           
-          planets.put(planet_id, new Planet(planet_id, (int)planet_xPos, (int)planet_yPos, getPlanetColor()));
+          planets.put(planet_id, new Planet(planet_id, (int)planet_xPos, (int)planet_yPos, getPlanetColor(), tStamp) );
         }else{
           
           
@@ -80,6 +90,7 @@ class SolarSystem{
           
           
           
+		  // 2. Schleife ???
           for(int e = 1; e <= getJSONsize(); e++) {
             
             int planet_id_2 = skeletons1[e-1].getInt("skeleton_ID");
@@ -90,6 +101,9 @@ class SolarSystem{
                 
                 Planet planet_2 = planets.get(planet_id_2);
                 
+	        if(planet_2==null)
+			break;
+				
                 int plt1_x = planet_1.getxPos();
                 int plt1_y = planet_1.getyPos();
                 
@@ -106,7 +120,7 @@ class SolarSystem{
                  
                  
                 //println(planet_1.getIdle());
-                if(plt1_x >= plt2_x - 50 && plt1_x <= plt2_x + 50 && plt1_y >= plt2_y - 50 && plt1_y <= plt2_y + 50){
+                if(plt1_x >= plt2_x - pulseArea && plt1_x <= plt2_x + pulseArea && plt1_y >= plt2_y - pulseArea && plt1_y <= plt2_y + pulseArea){
                
                   if(planet_1.isPulsating() == false){
                     planet_1.togglePulse();
@@ -140,20 +154,42 @@ class SolarSystem{
           
           //***uncomment for kinect-movement****//
           planets.get(planet_id).movePlanet((int)planet_xPos, (int)planet_yPos, (int)planet_angle);
+          planets.get(planet_id).setTStamp(tStamp);
+          
+          /*
           try {
             noStroke();
             //println(planets.size());
-            
-            
-            
             
             planets.get(planet_id).display();
           }
           catch (Exception e) {
             e.printStackTrace();
           } 
+          */
         }
       }
+      
+      
+
+      Iterator it = planets.entrySet().iterator();
+      while (it.hasNext()) {
+          Map.Entry<Integer, Planet> pairs = (Map.Entry)it.next();
+          
+          if( ((Planet)pairs.getValue()).getTStamp() < (tStamp-5) ) {
+            it.remove();
+          }
+          
+          try {
+            noStroke();            
+            ((Planet)pairs.getValue()).display();
+          }
+          catch (Exception e) {
+            e.printStackTrace();
+          } 
+      }
+
+      
     }  
   
     private color getPlanetColor(){
