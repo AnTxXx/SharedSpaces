@@ -1,6 +1,5 @@
 static color getColor(String col_name){
    color col = #daa1ff;
-  
   if(col_name.equals("red")){
     col = #ff8d8d;
   }
@@ -13,6 +12,6 @@ static color getColor(String col_name){
   else if(col_name.equals("green")){
     col = #92ffc3;
   }
-  //cheuck  
+  //check  
   return col;
 }

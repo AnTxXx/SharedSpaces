@@ -75,6 +75,11 @@ class SolarSystem{
           
           Planet planet_1 = planets.get(planet_id);
           //check, ob punkte überdeckt sind
+          //TODO nur bei JSONGröße > 1
+          //TODO planet entfernen, wenn skeleton weg
+          
+          
+          
           for(int e = 1; e <= getJSONsize(); e++) {
             
             int planet_id_2 = skeletons1[e-1].getInt("skeleton_ID");
@@ -112,8 +117,7 @@ class SolarSystem{
                     planet_1.togglePulse();
                   }
                 } 
-               
-               
+
                if(planet_1.getIdle() >= 130){
                   
                   if(planet_1.isGrowing() == false){
@@ -128,8 +132,7 @@ class SolarSystem{
                     planet_1.toggleGrow();
                     
                   }
-                }
-                
+                }  
             }
           }
           
