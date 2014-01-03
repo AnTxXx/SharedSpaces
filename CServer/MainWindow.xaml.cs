@@ -21,7 +21,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     using System.Net;
     using System.Collections;
     using System.Collections.Specialized;
-    
+    using System.Collections.Concurrent;
 
     public class tinySkeleton
     {
@@ -114,7 +114,8 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         /// </summary>
         /// 
 
-        private List<tinySkeleton> tinySkeletons = new List<tinySkeleton>();
+        //private List<tinySkeleton> tinySkeletons = new List<tinySkeleton>();
+        private ConcurrentBag<tinySkeleton> tinySkeletons = new ConcurrentBag<tinySkeleton>();
         private bool trun = true;
         private ArrayList lastDegrees = new ArrayList();
 
@@ -244,8 +245,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         private void SensorSkeletonFrameReady(object sender, SkeletonFrameReadyEventArgs e)
         {
             Skeleton[] skeletons = new Skeleton[0];
-            tinySkeletons = new List<tinySkeleton>();
-
+            tinySkeletons = new ConcurrentBag<tinySkeleton>();
             
 
             using (SkeletonFrame skeletonFrame = e.OpenSkeletonFrame())
@@ -317,7 +317,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 degree = smoothMe(ref lastDegrees, (skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + skel.BoneOrientations[JointType.HipRight].AbsoluteRotation.Quaternion.Z) / 4 * 360, 20);
                 degree += 180;
             }
-            float formulaaa = (skel.Joints[JointType.HipCenter].Position.Z * (-1.0f) - calibFRONT / (calibBACK - calibFRONT) * 2.0f) + 2.0f;
+            float formulaaa = ((skel.Joints[JointType.HipCenter].Position.Z * (-1.0f) - calibFRONT) / (calibBACK - calibFRONT) * 2.0f) + 2.0f;
             tinySkeleton tiny = new tinySkeleton(skel.TrackingId, skel.Joints[JointType.HipCenter].Position.X, formulaaa, degree);
             out_debug.Text += " " + degree.ToString();
             
@@ -357,7 +357,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             const string url = "http://9ifvp.w4yserver.at/uni/sharedSpace/postSkeletons.php";
             while (trun)
             {
-                if (tinySkeletons.Count > 0)
+                if (!tinySkeletons.IsEmpty)
                 {
                     Dictionary<string, string> yoman = new Dictionary<string, string>();
                     yoman.Add("jsonString", JsonConvert.SerializeObject(tinySkeletons));
