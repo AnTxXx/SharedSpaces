@@ -8,24 +8,32 @@ class Planet{
     private Moon moon;
     private int id;
     color col;
+    color stroke;
     private int angle = 0;
     
     private boolean pulsating = false;
     private boolean pulse_growing = false;
-    
     private boolean growing = false;
+    private boolean local = false;
     
     private int idle_counter = 0;
     
     private long tStamp;
     
-    public Planet(int id, int x, int y, color col, long tStamp) {
+    public Planet(int id, int x, int y, color col, boolean local, long tStamp) {
 
-      this.col = col;
+      if(!local)
+        this.col = col;
+      else
+        this.col = 200;   
+
+
+      this.stroke = col;
       this.xPos = x;
       this.yPos = y;
       
       this.id = id;
+      this.local = local;
       
       this.tStamp = tStamp;
       
@@ -34,9 +42,19 @@ class Planet{
     }
      
     public void display() {
-        moon.display();
-        fill(col);
         
+      
+        if(!local) {
+          noStroke();
+        } else {
+          strokeWeight(4);
+          stroke(stroke);
+        }   
+        
+        moon.display();
+        
+
+          
         
         if(pulsating == true){
           pulsate();
@@ -46,27 +64,22 @@ class Planet{
           resetSize();
         }else if (growing == false){
           resetSize();
-        }
-        
+        }      
+                
         ellipse(xPos,yPos,size,size);
-        //refreshPosition();
-        //0-360 radians
-        //println(angle);
 
         pushMatrix();
         
-        //fill(0);
-        //text ( id + " || xPos: " + xPos + " yPos " + yPos ,10,100); 
-        
-        println(id + " || xPos: " + xPos + " yPos " + yPos);
+        //println(id + " || xPos: " + xPos + " yPos " + yPos);
         translate(xPos, yPos);
         rotate(radians(angle));
-        
+         
         fill(col);
+
+        
         triangle(0,0-size*0.7,    0-size*0.1, 0-size*0.6,     0+size*0.1, 0-size*0.6);   
-        //xpos anpassen
+
         popMatrix();   
-    
     }
     
     

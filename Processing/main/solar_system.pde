@@ -9,9 +9,14 @@ class SolarSystem{
      /*****/
   
   
-    HashMap<Integer, Planet> planets = new HashMap<Integer, Planet>();
-    //ArrayList<Planet> planets = new ArrayList<Planet>();
+    HashMap<Integer, Planet> localPlanets = new HashMap<Integer, Planet>();
+    HashMap<Integer, Planet> remotePlanets = new HashMap<Integer, Planet>();
+    HashMap<Integer, Planet> planets;
+    
+    //HashMap<Integer, Planet> planets = new HashMap<Integer, Planet>();
+    
     JSONObject[] skeletons1 = new JSONObject[6];
+    
     private  int CANVAS_X, CANVAS_Y;
     ArrayList<String> planet_colors = new ArrayList<String>();
     
@@ -33,36 +38,45 @@ class SolarSystem{
     
     //1 = up, 2 = d, 3 = r, 4 = l
     public void moveKey(int dir){
-      if(planets.size() > 0){
+      if(remotePlanets.size() > 0){
         //planets.get(key_id).moveKey(dir);
       }
     }
     public void rotateKey(int angle){
-      if(planets.size() > 0){
+      if(remotePlanets.size() > 0){
         //planets.get(key_id).rotateKey(angle);
       }
     }
+
     
-    
-    
-    public void addPlanet() {
+    /**
+    * Updates the planet datastructure and draws each planet
+    * @param local   update & draw local planets
+    */
+    public void updatePlanets(boolean local){
+      int JSONsize=0;
       
-        
-    }
-    
-    public void removePlanet() {
+      if(local) {
+        skeletons1 = getLocalSkeletons();
+        planets = localPlanets;
+        JSONsize = getLocalJSONsize();
+      } else {
+        skeletons1 = getRemoteSkeletons();
+        planets = remotePlanets;
+        JSONsize = getRemoteJSONsize();
+      }
+
+      if(skeletons1==null)
+        return;
+
       
-        
-    }
-    
-    public void updatePlanets(){
-      skeletons1 = getSkeletons();
       
       Date d = new Date();
       long tStamp=d.getTime()/1000;
 	  
-	  // alle Planeten vom Webservice in lokale Datenstruktur (planets) hängen
-      for(int i = 1; i <= getJSONsize(); i++) {
+
+      // alle Planeten vom Webservice in lokale Datenstruktur (planets) hängen
+      for(int i = 1; i <= JSONsize; i++) {
         
         //get Skeleton-Values
         float planet_xPos = (skeletons1[i-1].getFloat("xPos")+1)/2*CANVAS_X;
@@ -79,19 +93,84 @@ class SolarSystem{
           //****for poor key-processing****//
           key_id = planet_id;
           
-          planets.put(planet_id, new Planet(planet_id, (int)planet_xPos, (int)planet_yPos, getPlanetColor(), tStamp) );
+          planets.put(planet_id, new Planet(planet_id, (int)planet_xPos, (int)planet_yPos, getPlanetColor(), local, tStamp) );
         }else{
           
+          //checkInteractions(planet_id);
+                    
+          //***uncomment for kinect-movement****//
+          planets.get(planet_id).movePlanet((int)planet_xPos, (int)planet_yPos, (int)planet_angle);
+          planets.get(planet_id).setTStamp(tStamp);
+
+        }
+      }
+      
+      
+      // Draw all elements of planets
+      Iterator it = planets.entrySet().iterator();
+      int textOffset=1;
+      
+      // == DEBUG OUTPUT
+      if(isDebug()) {
+        textSize(15);
+        fill(0);
+        if(local)
+          text("Local", 10, (textOffset++)*20); 
+        else
+          text("Remote", 220, (textOffset++)*20); 
+      }
+      
+      
+      while (it.hasNext()) {
+          Map.Entry pairs = (Map.Entry)it.next();
           
+          if( ((Planet)pairs.getValue()).getTStamp() < (tStamp-5) ) {
+            it.remove();
+          }
+          
+          try {
+            
+            if((!local) || (showLocal()))
+              ((Planet)pairs.getValue()).display();
+            
+            // == DEBUG OUTPUT
+            if(isDebug()) {
+              Planet P = (Planet)pairs.getValue();
+              
+              textSize(15);
+              fill(0);
+              if(local)
+                text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos(), 10, (textOffset++)*20); 
+              else 
+                text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos(), 220, (textOffset++)*20); 
+            }
+          }
+          catch (Exception e) {
+            e.printStackTrace();
+          } 
+      }
+
+
+      // update changed planets map
+      if(local) {
+         localPlanets = planets;
+      } else {
+        remotePlanets = planets;
+      }
+      
+      
+    }  
+  
+  
+  
+    /**
+    *  Calculates and triggers interaction between planets
+    */
+    private void checkInteractions(int planet_id) {
+      
           Planet planet_1 = planets.get(planet_id);
-          //check, ob punkte überdeckt sind
-          //TODO nur bei JSONGröße > 1
-          //TODO planet entfernen, wenn skeleton weg
-          
-          
-          
-		  // 2. Schleife ???
-          for(int e = 1; e <= getJSONsize(); e++) {
+      
+          for(int e = 1; e <= getLocalJSONsize(); e++) {
             
             int planet_id_2 = skeletons1[e-1].getInt("skeleton_ID");
             
@@ -101,9 +180,9 @@ class SolarSystem{
                 
                 Planet planet_2 = planets.get(planet_id_2);
                 
-	        if(planet_2==null)
-			break;
-				
+                if(planet_2==null)
+                  break;
+        
                 int plt1_x = planet_1.getxPos();
                 int plt1_y = planet_1.getyPos();
                 
@@ -148,49 +227,9 @@ class SolarSystem{
                   }
                 }  
             }
-          }
-          
-          
-          
-          //***uncomment for kinect-movement****//
-          planets.get(planet_id).movePlanet((int)planet_xPos, (int)planet_yPos, (int)planet_angle);
-          planets.get(planet_id).setTStamp(tStamp);
-          
-          /*
-          try {
-            noStroke();
-            //println(planets.size());
-            
-            planets.get(planet_id).display();
-          }
-          catch (Exception e) {
-            e.printStackTrace();
           } 
-          */
-        }
-      }
-      
-      
-
-      Iterator it = planets.entrySet().iterator();
-      while (it.hasNext()) {
-          Map.Entry<Integer, Planet> pairs = (Map.Entry)it.next();
-          
-          if( ((Planet)pairs.getValue()).getTStamp() < (tStamp-5) ) {
-            it.remove();
-          }
-          
-          try {
-            noStroke();            
-            ((Planet)pairs.getValue()).display();
-          }
-          catch (Exception e) {
-            e.printStackTrace();
-          } 
-      }
-
-      
-    }  
+    }
+  
   
     private color getPlanetColor(){
       
