@@ -20,7 +20,7 @@ class SolarSystem{
     private  int CANVAS_X, CANVAS_Y;
     ArrayList<String> planet_colors = new ArrayList<String>();
     
-    private final int pulseArea = 120;
+    private final int pulseArea = 60;
     
     public SolarSystem(int CANVAS_X, int CANVAS_Y) {
      
@@ -130,13 +130,29 @@ class SolarSystem{
           
           try {
             
-            if((!local) || (showLocal()))
-              ((Planet)pairs.getValue()).display();
+            Planet P = (Planet)pairs.getValue();
+            
+            if(!local) {
+               P.display();
+               checkInteractions(P);
+               
+            } else if(showLocal()) {
+                P.display();
+            }
+              
+              
+            if(P.getIdle() >= 130){
+              if(P.isGrowing() == false){
+                P.toggleGrow(); 
+              }
+            }else{
+              if(P.isGrowing() == true){
+                P.toggleGrow(); 
+              }
+            }
             
             // == DEBUG OUTPUT
             if(isDebug()) {
-              Planet P = (Planet)pairs.getValue();
-              
               textSize(15);
               fill(0);
               if(local)
@@ -155,7 +171,7 @@ class SolarSystem{
       if(local) {
          localPlanets = planets;
       } else {
-        remotePlanets = planets;
+         remotePlanets = planets;
       }
       
       
@@ -166,6 +182,45 @@ class SolarSystem{
     /**
     *  Calculates and triggers interaction between planets
     */
+    private void checkInteractions(Planet remote) {
+      
+          Planet local;
+          Iterator it = localPlanets.entrySet().iterator();
+
+          while (it.hasNext()) {
+            
+            
+            Map.Entry pairs = (Map.Entry)it.next();
+            local = (Planet)pairs.getValue();
+        
+                int plt1_x = remote.getxPos();
+                int plt1_y = remote.getyPos();
+                
+                int plt2_x = local.getxPos();
+                int plt2_y = local.getyPos();
+                //get both planets and check their x and y
+                //if similar and not pulse => togglepulse
+                //if not and pulse => togglepulse
+                
+                
+                //noch intervall machen und nicht genaue position
+                //wenn überschneidung pulsieren starten
+
+                if(plt1_x >= plt2_x - pulseArea && plt1_x <= plt2_x + pulseArea 
+                  && plt1_y >= plt2_y - pulseArea && plt1_y <= plt2_y + pulseArea){
+                        remote.setPulsating(true);
+                        break;
+                    }else{
+                      if(remote.isPulsating()){
+                        remote.setPulsating(false);
+                      }
+                }
+          } 
+    }
+    
+    /**
+    *  Calculates and triggers interaction between planets
+    *
     private void checkInteractions(int planet_id) {
       
           Planet planet_1 = planets.get(planet_id);
@@ -229,7 +284,7 @@ class SolarSystem{
             }
           } 
     }
-  
+  */
   
     private color getPlanetColor(){
       

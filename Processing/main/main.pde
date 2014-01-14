@@ -49,6 +49,8 @@ void draw() {
 
   solarsystem.updatePlanets(true);
   solarsystem.updatePlanets(false);
+  
+  //solarsystem.checkInteractions();
 }
 
 public boolean isDebug() {
@@ -100,6 +102,7 @@ void serverCall() {
 
       if (IS_DEBUG) {
         json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getCircularSkeletons.php");
+        //json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getSkeletons.php");
       }
       else {
         json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getSkeletons.php");
@@ -116,7 +119,7 @@ void serverCall() {
         }
       }
       catch (Exception e) {
-        println("No key or JSONObject found!");
+        //println("No key or JSONObject found!");
       }
 
       try {
@@ -129,13 +132,13 @@ void serverCall() {
         }
       }
       catch (Exception e) {
-        println("No key or JSONObject found!");
+        //println("No key or JSONObject found!");
       }      
 
-      nextchange = millis()+100;
+      nextchange = millis()+20;
       
       // ASCII ART
-      s.getLine();
+      //s.getLine();
     }
   }
 }

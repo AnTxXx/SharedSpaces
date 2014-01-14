@@ -77,9 +77,28 @@ class Planet{
         fill(col);
 
         
-        triangle(0,0-size*0.7,    0-size*0.1, 0-size*0.6,     0+size*0.1, 0-size*0.6);   
+        triangle(0,0-size*0.7,    0-size*0.1, 0-size*0.6,     0+size*0.1, 0-size*0.6);
+        
+        
 
-        popMatrix();   
+        popMatrix(); 
+        
+        /*
+        int tAngle = angle;
+        
+        if(angle>270) {
+          tAngle=angle-270;
+        }
+        else if(angle>180) {
+          tAngle=angle-180;
+        }
+        else if(angle>90) {
+          tAngle=angle-90;
+        }
+        */
+        
+        //int yPosSin = -1*(yPos-10);
+        //line(xPos, yPos, cos(radians(angle))*xPos*(-1), sin(radians(angle))*yPosSin);  
     }
     
     
@@ -196,6 +215,10 @@ class Planet{
     
     public boolean isPulsating(){
       return pulsating;
+    }
+    
+    public void setPulsating(boolean pulsating){
+      this.pulsating = pulsating;
     }
     
     public boolean isGrowing(){
