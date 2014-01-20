@@ -20,6 +20,11 @@ class Planet{
     
     private long tStamp;
     
+    
+    private Planet intersecting;
+    private int intersectCounter=0;
+    
+    
     public Planet(int id, int x, int y, color col, boolean local, long tStamp) {
 
       if(!local)
@@ -37,25 +42,25 @@ class Planet{
       
       this.tStamp = tStamp;
       
-      moon = new Moon(this.col, this);
+      moon = new Moon(this.stroke, this);
       
     }
      
     public void display() {
+  
+        //noStroke();
+        strokeWeight(4);
+        stroke(stroke);
         
-      
-        if(!local) {
-          noStroke();
-        } else {
+        moon.display();
+        //fill(moon.getColor()); 
+        
+        if(local) {
           strokeWeight(4);
           stroke(stroke);
         }   
-        
-        moon.display();
-        
 
-          
-        
+
         if(pulsating == true){
           pulsate();
         }else if(growing == true){
@@ -65,10 +70,14 @@ class Planet{
         }else if (growing == false){
           resetSize();
         }      
-                
+         
+        fill(col);        
         ellipse(xPos,yPos,size,size);
 
         pushMatrix();
+        
+
+
         
         //println(id + " || xPos: " + xPos + " yPos " + yPos);
         translate(xPos, yPos);
@@ -82,23 +91,57 @@ class Planet{
         
 
         popMatrix(); 
+
+
+        pushMatrix();
         
-        /*
-        int tAngle = angle;
+        strokeWeight(4);
+        stroke(stroke);
         
-        if(angle>270) {
-          tAngle=angle-270;
-        }
-        else if(angle>180) {
-          tAngle=angle-180;
-        }
-        else if(angle>90) {
-          tAngle=angle-90;
-        }
-        */
+        translate(xPos, yPos);
+        rotate(radians(angle));
         
-        //int yPosSin = -1*(yPos-10);
-        //line(xPos, yPos, cos(radians(angle))*xPos*(-1), sin(radians(angle))*yPosSin);  
+        line(0, -60, 0, -700);  
+        popMatrix(); 
+    }
+    
+
+    
+    public int getAngle() {
+      return this.angle;
+    }
+    
+    
+    public void setIntersecting(Planet p) {
+      
+      if(p==null) {
+        intersecting=null;
+        intersectCounter=0;
+        return;
+      }
+   
+      
+      if(p.equals(intersecting)) {
+        intersectCounter++;
+        
+        //println(this.getMoon().getColor());
+         
+         if(intersectCounter>10) {
+           intersectCounter=-300;
+           
+           Moon m = p.getMoon();
+           p.setMoon(this.moon);
+           this.setMoon(m);
+           
+           println("Exchanged - Moon color set to :" + this.getMoon().getColor() );
+           
+         }
+      } 
+      else {
+        intersecting=p;
+        intersectCounter=0;
+      }
+    
     }
     
     
@@ -235,5 +278,13 @@ class Planet{
     
     public void setTStamp(long tStamp) {
       this.tStamp = tStamp;
+    }
+    
+    public void setMoon(Moon m) {
+      this.moon=m;
+    }
+    
+    public Moon getMoon() {
+      return this.moon;
     }
 }

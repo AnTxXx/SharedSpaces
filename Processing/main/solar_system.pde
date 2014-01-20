@@ -156,9 +156,9 @@ class SolarSystem{
               textSize(15);
               fill(0);
               if(local)
-                text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos(), 10, (textOffset++)*20); 
+                text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos()  + " - " + P.getAngle() + "°", 10, (textOffset++)*20); 
               else 
-                text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos(), 220, (textOffset++)*20); 
+                text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos()  + " - " + P.getAngle() + "°", 220, (textOffset++)*20); 
             }
           }
           catch (Exception e) {
@@ -184,8 +184,9 @@ class SolarSystem{
     */
     private void checkInteractions(Planet remote) {
       
-          Planet local;
+          Planet local, lookAt=null;
           Iterator it = localPlanets.entrySet().iterator();
+          boolean checkPulse=true;
 
           while (it.hasNext()) {
             
@@ -193,6 +194,10 @@ class SolarSystem{
             Map.Entry pairs = (Map.Entry)it.next();
             local = (Planet)pairs.getValue();
         
+        
+          /**
+          * PULSE
+          */
                 int plt1_x = remote.getxPos();
                 int plt1_y = remote.getyPos();
                 
@@ -205,86 +210,81 @@ class SolarSystem{
                 
                 //noch intervall machen und nicht genaue position
                 //wenn überschneidung pulsieren starten
-
-                if(plt1_x >= plt2_x - pulseArea && plt1_x <= plt2_x + pulseArea 
-                  && plt1_y >= plt2_y - pulseArea && plt1_y <= plt2_y + pulseArea){
-                        remote.setPulsating(true);
-                        break;
-                    }else{
-                      if(remote.isPulsating()){
-                        remote.setPulsating(false);
-                      }
+                if(checkPulse) {
+                  if(plt1_x >= plt2_x - pulseArea && plt1_x <= plt2_x + pulseArea 
+                    && plt1_y >= plt2_y - pulseArea && plt1_y <= plt2_y + pulseArea){
+                          remote.setPulsating(true);
+                          checkPulse=false;
+                      }else{
+                        if(remote.isPulsating()){
+                          remote.setPulsating(false);
+                        }
+                  }
                 }
+                
+  
+          /**
+          * LOOK AT
+          * - call "checkIntersecting()" for local and remote planet
+          * -  
+          */
+                if(lookAt==null) {
+                      
+                      if(local.getAngle()>180) {
+                        if(checkIntersecting(remote, local))
+                          lookAt=local;
+                      } else {
+                        if(checkIntersecting(local, remote))
+                          lookAt=local;
+                      }
+                }   
+                
           } 
+          
+          remote.setIntersecting(lookAt);
     }
     
-    /**
-    *  Calculates and triggers interaction between planets
-    *
-    private void checkInteractions(int planet_id) {
-      
-          Planet planet_1 = planets.get(planet_id);
-      
-          for(int e = 1; e <= getLocalJSONsize(); e++) {
-            
-            int planet_id_2 = skeletons1[e-1].getInt("skeleton_ID");
-            
-            if(planet_id != planet_id_2){
-                //hier checken
-                
-                
-                Planet planet_2 = planets.get(planet_id_2);
-                
-                if(planet_2==null)
-                  break;
+    
+    private boolean checkIntersecting(Planet alpha, Planet beta) {
         
-                int plt1_x = planet_1.getxPos();
-                int plt1_y = planet_1.getyPos();
-                
-                int plt2_x = planet_2.getxPos();
-                int plt2_y = planet_2.getyPos();
-                //get both planets and check their x and y
-                //if similar and not pulse => togglepulse
-                //if not and pulse => togglepulse
-                
-                
-                //noch intervall machen und nicht genaue position
-                 //wenn überschneidung pulsieren starten
-                 
-                 
-                 
-                //println(planet_1.getIdle());
-                if(plt1_x >= plt2_x - pulseArea && plt1_x <= plt2_x + pulseArea && plt1_y >= plt2_y - pulseArea && plt1_y <= plt2_y + pulseArea){
-               
-                  if(planet_1.isPulsating() == false){
-                    planet_1.togglePulse();
-                  }
-                }else{
-                  if(planet_1.isPulsating() == true){
-                    //set planets to normal size
-                    planet_1.togglePulse();
-                  }
-                } 
-
-               if(planet_1.getIdle() >= 130){
-                  
-                  if(planet_1.isGrowing() == false){
-                    
-                    planet_1.toggleGrow();
-                    
-                  }
-                  //TODO bei Bewegung wieder kleiner
-                }else{
-                  if(planet_1.isGrowing() == true){
-                    
-                    planet_1.toggleGrow();
-                    
-                  }
-                }  
-            }
-          } 
+        // Abweichungstoleranz
+        int tolAngle=10;
+        int tolA=20; 
+      
+        // Wenn sich beide exakt betrachten, ist Winkel Alpha genau 180° kleiner als Winkel Beta
+        if( (alpha.getAngle() < (beta.getAngle() - 180 + tolAngle*0.5)) &&
+            (alpha.getAngle() > (beta.getAngle() - 180 - tolAngle*0.5)) ) {
+           
+           
+           // Aus den beiden Punkten lassen sich die Katheten errechnen
+           // danach a über Tangens/Winkel und b errechnen
+           // -> Stimmt dies mit a überein, sehen sich beide wirklich an
+           
+           int a, b, aTan;
+           
+           if(alpha.getAngle() > 90) {
+             a = beta.getxPos()-alpha.getxPos();
+             b = beta.getyPos()-alpha.getyPos();
+             
+             
+             aTan = (int)(tan(radians(alpha.getAngle()-90))*b);
+           } else {
+             a = beta.getxPos()-alpha.getxPos();
+             b = alpha.getyPos()-beta.getyPos();
+             
+             aTan = (int)(tan(radians(alpha.getAngle()))*b);
+           }     
+            
+           if( ((a+tolA*0.5)>aTan) &&
+               ((a-tolA*0.5)<aTan)) {
+               return true;
+           }
+              
+        } 
+      
+      return false;
     }
-  */
+
   
     private color getPlanetColor(){
       
