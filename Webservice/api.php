@@ -19,22 +19,35 @@ class SpacesAPI {
     // circular movement -> one full circle every 8 sec.
     function getCircularSkeleton() {
     	
-    	$r_size = 0.9;
-    	$millis = fmod(microtime(true), 8);
-    	$deg = 360 * ($millis/8);
+    	
+    	$osc1 = fmod(microtime(true), 8)/8; // Oscillator [0;0,8]
+    	$osc2 = 2*($osc1)-1; // Oscillator [-0,8;0,8]
     	
     	
+
     	
     	
-    	$json_result["client_ID1"]=array();    	
-    	$json_result["client_ID1"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => $r_size * cos($deg), "zPos" => $r_size * sin($deg), "orientation" => $deg);
+    	$json_result["client_ID1"]=array();
+    	//$json_result["client_ID1"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => $osc2, "zPos" => $osc2, "orientation" => $osc1*360);
     	
+    	$json_result["client_ID1"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => 0.3, "zPos" => 0.3, "orientation" => 315);
+    	//$json_result["client_ID1"]["skeleton_ID2"] = array("skeleton_ID" => 2, "xPos" => -0.2, "zPos" => -0.2, "orientation" => 135);
+    	
+    	$r_size = 0.5;
+    	$millis = fmod(microtime(true), 8000);
+    	$deg = 360 * ($millis/800);
+    	
+    	$json_result["client_ID2"]=array();    	
+    	//$json_result["client_ID2"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => $r_size * cos($deg), "zPos" => $r_size * sin($deg), "orientation" => $osc1*360);
+    	//$json_result["client_ID2"]["skeleton_ID1"] = array("skeleton_ID" => 2, "xPos" => -0.2, "zPos" => -0.2, "orientation" => 135);
+    	$json_result["client_ID2"]["skeleton_ID1"] = array("skeleton_ID" => 2, "xPos" => -0.2, "zPos" => -0.2, "orientation" => (135 + $osc1*18));
     	
     	
     	$r_size = 0.5;
-    	$deg = 360 - (360 * ($millis/8));
+    	$deg = 360 - $deg;
     	
-    	$json_result["client_ID1"]["skeleton_ID2"] = array("skeleton_ID" => 1, "xPos" => $r_size * cos($deg), "zPos" => $r_size * sin($deg), "orientation" => $deg);
+    	//$json_result["client_ID2"]["skeleton_ID2"] = array("skeleton_ID" => 2, "xPos" => $r_size * cos($deg), "zPos" => $r_size * sin($deg), "orientation" => $osc1*360*-1);
+    	//$json_result["client_ID2"]["skeleton_ID2"] = array("skeleton_ID" => 2, "xPos" => 0.8, "zPos" => 0.8, "orientation" => 310);
     	
     	
     	$this->sendResponse(200, json_encode($json_result), "application/json");
@@ -143,11 +156,14 @@ class SpacesAPI {
 				$stmt->execute();		
 			}
 
-			$stmt->close();			
+			$stmt->close();	
+
+			sendResponse(200);
 
 		}
 		else {
-			echo "ERROR: No client id specified!";
+			sendResponse(400);
+			
 		}
 	}
     
