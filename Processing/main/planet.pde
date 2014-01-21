@@ -129,7 +129,11 @@ class Planet{
          if(intersectCounter>10) {
            intersectCounter=-300;
            
+           color saveColforeign = p.getMoon().getColor();
+           color saveThis = this.moon.getColor();
+           p.getMoon().setColor(saveThis);
            Moon m = p.getMoon();
+           this.moon.setColor(saveColforeign);
            p.setMoon(this.moon);
            this.setMoon(m);
            
