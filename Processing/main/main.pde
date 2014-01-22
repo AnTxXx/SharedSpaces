@@ -4,6 +4,18 @@
 private final boolean IS_DEBUG=true;
 private final boolean SHOW_LOCAL_SKEL=true;
 
+
+/* Uncomment, if your name is Michael
+int localClientID=1;
+int remoteClientID=2;
+*/
+
+/* Uncomment, if your name is Lukas
+int localClientID=2;
+int remoteClientID=1;
+*/
+
+
 //canvas size
 private final int CANVAS_X=600, CANVAS_Y=600;
 
@@ -18,39 +30,37 @@ void setup() {
 }
 
 void draw() {
+  
+  if(localClientID==0) {
+    background(25);
+     fill(150);
+     textSize(22);
+     text("Please enter your client ID [1, 2]",100,100); 
+     if (keyPressed) {
+      if (key == '1') {
+        localClientID=1;
+        remoteClientID=2;
+      }
+      if (key == '2') {
+        localClientID=2;
+        remoteClientID=1;
+      }
+     }
+     
+  } else {
+  
 
-  if (keyPressed) {
-    if (key == 'w' || key == 'W') {
-      solarsystem.moveKey(1);
-    } 
-    else if (key == 's' || key == 'S') {
-      solarsystem.moveKey(2);
-    } 
-    else if (key == 'd' || key == 'D') {
-      solarsystem.moveKey(3);
-    } 
-    else if (key == 'a' || key == 'A') { 
-      solarsystem.moveKey(4);
-    } 
-    else if (key == 'q' || key == 'Q') { 
-      angle--;
-      solarsystem.rotateKey(angle);
-    } 
-    else if (key == 'e' || key == 'E') { 
-      angle++;
-      solarsystem.rotateKey(angle);
-    }
-  }
-  else {
-    solarsystem.moveKey(5);
-  }
-
+  solarsystem.moveKey(5);
   background(200);
-
+  
   solarsystem.updatePlanets(true);
   solarsystem.updatePlanets(false);
   
-  //solarsystem.checkInteractions();
+  textSize(15);
+  fill(0);
+  text("Client ID "+localClientID, 400, 20); 
+  
+  }
 }
 
 public boolean isDebug() {
@@ -68,8 +78,6 @@ public boolean showLocal() {
 JSONObject json;
 int nextchange = 0;
 boolean threadrun=true;
-int localClientID = 1;
-int remoteClientID = 2;
 
 static JSONObject[] localSkeletons = new JSONObject[6];
 static JSONObject[] remoteSkeletons = new JSONObject[6];
@@ -101,8 +109,8 @@ void serverCall() {
     if (millis()>nextchange) {
 
       if (IS_DEBUG) {
-        json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getCircularSkeletons.php");
-        //json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getSkeletons.php");
+        //json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getCircularSkeletons.php");
+        json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getSkeletons.php");
       }
       else {
         json = loadJSONObject("http://9ifvp.w4yserver.at/uni/sharedSpace/getSkeletons.php");
@@ -138,7 +146,7 @@ void serverCall() {
       nextchange = millis()+20;
       
       // ASCII ART
-      //s.getLine();
+      s.getLine();
     }
   }
 }
