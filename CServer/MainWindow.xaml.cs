@@ -26,7 +26,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
     public class tinySkeleton
     {
          
-        public int client_ID = 1;
+        public int client_ID = 2;
         public int skeleton_ID;
         public float xPos, zPos, orientation;
 

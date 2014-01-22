@@ -117,7 +117,7 @@ class SolarSystem{
         if(local)
           text("Local", 10, (textOffset++)*20); 
         else
-          text("Remote", 220, (textOffset++)*20); 
+          text("Remote", 240, (textOffset++)*20); 
       }
       
       
@@ -158,7 +158,7 @@ class SolarSystem{
               if(local)
                 text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos()  + " - " + P.getAngle() + "°", 10, (textOffset++)*20); 
               else 
-                text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos()  + " - " + P.getAngle() + "°", 220, (textOffset++)*20); 
+                text("ID: " + P.getID() + " - X:" + P.getxPos() + " - Y:" + P.getyPos()  + " - " + P.getAngle() + "°", 240, (textOffset++)*20); 
             }
           }
           catch (Exception e) {
@@ -248,8 +248,8 @@ class SolarSystem{
     private boolean checkIntersecting(Planet alpha, Planet beta) {
         
         // Abweichungstoleranz
-        int tolAngle=10;
-        int tolA=20; 
+        int tolAngle=20;
+        int tolA=30; 
       
         // Wenn sich beide exakt betrachten, ist Winkel Alpha genau 180° kleiner als Winkel Beta
         if( (alpha.getAngle() < (beta.getAngle() - 180 + tolAngle*0.5)) &&

@@ -10,10 +10,10 @@ int localClientID=1;
 int remoteClientID=2;
 */
 
-/* Uncomment, if your name is Lukas
+/* Uncomment, if your name is Lukas */
 int localClientID=2;
 int remoteClientID=1;
-*/
+
 
 
 //canvas size
@@ -146,7 +146,7 @@ void serverCall() {
       nextchange = millis()+20;
       
       // ASCII ART
-      s.getLine();
+      //s.getLine();
     }
   }
 }
