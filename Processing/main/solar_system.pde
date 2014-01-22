@@ -79,14 +79,14 @@ class SolarSystem{
       for(int i = 1; i <= JSONsize; i++) {
         
         //get Skeleton-Values
-        float planet_xPos = CANVAS_X-(skeletons1[i-1].getFloat("xPos")+1)/2*CANVAS_X;
-        float planet_yPos = (skeletons1[i-1].getFloat("zPos")+1)/2*CANVAS_Y;
+        float planet_xPos = (skeletons1[i-1].getFloat("xPos")+1)/2*CANVAS_X;
+        float planet_yPos = CANVAS_Y-(skeletons1[i-1].getFloat("zPos")+1)/2*CANVAS_Y;
         float planet_angle = (skeletons1[i-1].getFloat("orientation")+1);
         int planet_id = skeletons1[i-1].getInt("skeleton_ID");
         
         if(MIRROR_REMOTE && !local) {
-             planet_xPos = (skeletons1[i-1].getFloat("xPos")+1)/2*CANVAS_X;
-             planet_yPos = CANVAS_Y-(skeletons1[i-1].getFloat("zPos")+1)/2*CANVAS_Y;
+             planet_xPos = CANVAS_X-(skeletons1[i-1].getFloat("xPos")+1)/2*CANVAS_X;
+             planet_yPos = (skeletons1[i-1].getFloat("zPos")+1)/2*CANVAS_Y;
              planet_angle = 360-(skeletons1[i-1].getFloat("orientation")+1);
         }
         
