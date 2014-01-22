@@ -318,6 +318,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 degree += 180;
             }
             float formulaaa = ((skel.Joints[JointType.HipCenter].Position.Z * (-1.0f) - calibFRONT) / (calibBACK - calibFRONT) * 2.0f) + 2.0f;
+            formulaaa = (formulaaa) * (-1);
             tinySkeleton tiny = new tinySkeleton(skel.TrackingId, skel.Joints[JointType.HipCenter].Position.X, formulaaa, degree);
             out_debug.Text += " " + degree.ToString();
             
