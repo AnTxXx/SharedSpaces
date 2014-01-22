@@ -3,6 +3,7 @@
 // set to false for Live ENV
 private final boolean IS_DEBUG=true;
 private final boolean SHOW_LOCAL_SKEL=true;
+private final boolean MIRROR_REMOTE=true;
 
 
 /* Uncomment, if your name is Michael
