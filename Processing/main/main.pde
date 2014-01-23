@@ -4,6 +4,7 @@
 private final boolean IS_DEBUG=true;
 private final boolean SHOW_LOCAL_SKEL=true;
 private final boolean MIRROR_REMOTE=true;
+private final int BACKGROUND = 0;
 
 
 /* Uncomment, if your name is Michael
@@ -18,7 +19,7 @@ int remoteClientID=1;
 
 
 //canvas size
-private final int CANVAS_X=600, CANVAS_Y=600;
+private final int CANVAS_X=1920, CANVAS_Y=1080;
 
 private int angle = 0;
 private SolarSystem solarsystem = new SolarSystem(CANVAS_X, CANVAS_Y);
@@ -52,7 +53,7 @@ void draw() {
   
 
   solarsystem.moveKey(5);
-  background(200);
+  background(BACKGROUND);
   
   solarsystem.updatePlanets(true);
   solarsystem.updatePlanets(false);

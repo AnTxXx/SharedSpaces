@@ -30,7 +30,7 @@ class Planet{
       if(!local)
         this.col = col;
       else
-        this.col = 200;   
+        this.col = BACKGROUND;   
 
 
       this.stroke = col;

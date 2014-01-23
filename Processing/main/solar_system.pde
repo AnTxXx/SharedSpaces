@@ -87,9 +87,11 @@ class SolarSystem{
         if(MIRROR_REMOTE && !local) {
              planet_xPos = ((-1)*skeletons1[i-1].getFloat("xPos")+1)/2*CANVAS_X;
              planet_yPos = ((-1)*skeletons1[i-1].getFloat("zPos")+1)/2*CANVAS_Y;
-             planet_angle = 360-(skeletons1[i-1].getFloat("orientation")+1);
+             planet_angle = (skeletons1[i-1].getFloat("orientation")+1)-180;
              
-             println("REMOTE INVERSE");
+             if(planet_angle<0) 
+               planet_angle=360+planet_angle;
+
         }
         
         
