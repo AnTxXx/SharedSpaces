@@ -117,7 +117,8 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
         //private List<tinySkeleton> tinySkeletons = new List<tinySkeleton>();
         private ConcurrentBag<tinySkeleton> tinySkeletons = new ConcurrentBag<tinySkeleton>();
         private bool trun = true;
-        private ArrayList lastDegrees = new ArrayList();
+        private Dictionary<int, ArrayList> degreesPerSkeleton = new Dictionary<int, ArrayList>();
+        
 
         private const float calibFRONT=0.8f, calibBACK=4.0f;
 
@@ -275,7 +276,7 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                             //Debug.Write("X Rotation: " + skel.BoneOrientations[JointType.HipCenter].AbsoluteRotation.Quaternion.X + " ");
                             //Debug.Write("Y Rotation: " + skel.BoneOrientations[JointType.HipCenter].AbsoluteRotation.Quaternion.Y + " ");
                             //Debug.Write("Z Rotation: " + skel.BoneOrientations[JointType.HipCenter].AbsoluteRotation.Quaternion.Z + "\n");
-                            Debug.Write(skel.Position.X.ToString() + " / " + skel.Position.Z.ToString() + "\n");
+                            //Debug.Write(skel.Position.X.ToString() + " / " + skel.Position.Z.ToString() + "\n");
                             this.DrawBonesAndJoints(skel, dc);
                             tinySkeletons.Add(getTinySkeleton(skel));
                             
@@ -298,14 +299,22 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             }
         }
 
+        int client = 1;
+
         public tinySkeleton getTinySkeleton(Skeleton skel)
         {
+            if (!degreesPerSkeleton.ContainsKey(skel.TrackingId))
+            {
+                degreesPerSkeleton.Add(skel.TrackingId, new ArrayList());
+            }
             float degree = 0.0f;
             //Debug.Write("Absolute: " + skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + "\n");
+            ArrayList asdf = new ArrayList();
+            degreesPerSkeleton.TryGetValue(skel.TrackingId, out asdf);
             if (facingFront(skel))
             {
                 out_debug.Text = "Front";
-                degree = smoothMe(ref lastDegrees, (skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + skel.BoneOrientations[JointType.HipRight].AbsoluteRotation.Quaternion.Z) / 4 * 360, 20);
+                degree = smoothMe(ref asdf, (skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + skel.BoneOrientations[JointType.HipRight].AbsoluteRotation.Quaternion.Z) / 4 * 360, 20);
                 if (degree < 0)
                 {
                     degree += 360;
@@ -314,14 +323,25 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
             else
             {
                 out_debug.Text = "Back";
-                degree = smoothMe(ref lastDegrees, (skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + skel.BoneOrientations[JointType.HipRight].AbsoluteRotation.Quaternion.Z) / 4 * 360, 20);
+                degree = smoothMe(ref asdf, (skel.BoneOrientations[JointType.HipLeft].AbsoluteRotation.Quaternion.Z + skel.BoneOrientations[JointType.HipRight].AbsoluteRotation.Quaternion.Z) / 4 * 360, 20);
                 degree += 180;
             }
             float formulaaa = ((skel.Joints[JointType.HipCenter].Position.Z * (-1.0f) - calibFRONT) / (calibBACK - calibFRONT) * 2.0f) + 2.0f;
             formulaaa = (formulaaa) * (-1);
             tinySkeleton tiny = new tinySkeleton(skel.TrackingId, skel.Joints[JointType.HipCenter].Position.X, formulaaa, degree);
             out_debug.Text += " " + degree.ToString();
-            
+
+            if (client == 1)
+            {
+                Debug.Write("ID " + skel.TrackingId.ToString() + " - " + degree + "\n");
+                client = 0;
+            }
+            else
+            {
+                Debug.Write("ID" + skel.TrackingId.ToString() + " - " + degree + "");
+                client = 1;
+            }
+
             return tiny;
         }
 
@@ -362,8 +382,10 @@ namespace Microsoft.Samples.Kinect.SkeletonBasics
                 {
                     Dictionary<string, string> yoman = new Dictionary<string, string>();
                     yoman.Add("jsonString", JsonConvert.SerializeObject(tinySkeletons));
-                    Debug.Write(JsonConvert.SerializeObject(tinySkeletons));
-                    Debug.Write(HttpPostRequest(url, yoman));
+                    //Debug.Write(JsonConvert.SerializeObject(tinySkeletons));
+                    //Debug.Write(HttpPostRequest(url, yoman));
+                    HttpPostRequest(url, yoman);
+
                     Thread.Sleep(20);
                 }
             }

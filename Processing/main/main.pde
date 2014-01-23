@@ -3,7 +3,7 @@
 // set to false for Live ENV
 private final boolean IS_DEBUG=true;
 private final boolean SHOW_LOCAL_SKEL=true;
-private final boolean MIRROR_REMOTE=false;
+private final boolean MIRROR_REMOTE=true;
 private final int BACKGROUND = 0;
 
 
@@ -13,7 +13,7 @@ int remoteClientID=2;
 */
 
 /* Uncomment, if your name is Lukas */
-int localClientID=0;
+int localClientID=2;
 int remoteClientID=1;
 
 
