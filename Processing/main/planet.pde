@@ -5,6 +5,10 @@ class Planet{
     
     private int size = 50;
     private int sizeOrig = 50;
+    
+    private int sizeTopLimit=100;
+    private int sizeLowerLimit=50;
+    
     private Moon moon;
     private int id;
     color col;
@@ -129,13 +133,18 @@ class Planet{
          if(intersectCounter>10) {
            intersectCounter=-300;
            
+           /*
            color saveColforeign = p.getMoon().getColor();
            color saveThis = this.moon.getColor();
            p.getMoon().setColor(saveThis);
-           Moon m = p.getMoon();
+           //Moon m = p.getMoon();
            this.moon.setColor(saveColforeign);
-           p.setMoon(this.moon);
-           this.setMoon(m);
+          // p.setMoon(this.moon);
+           //this.setMoon(m);
+           */
+           
+           p.getMoon().triggerMoonChange(this.moon.getColor());
+           this.getMoon().triggerMoonChange(p.getMoon().getColor());
            
            println("Exchanged - Moon color set to :" + this.getMoon().getColor() );
            
@@ -153,11 +162,12 @@ class Planet{
       
       int xPos_old = this.xPos;
       int yPos_old = this.yPos;
-      
+      int tol=10;
       
       //xPos <= xPos_old + 50 && xPos >= xPos_old - 50 && yPos <= yPos_old + 50 && yPos >= yPos - 50
       
-      if(xPos_old == xPos && yPos_old == yPos){
+      if((xPos_old+tol) >= xPos && (yPos_old+tol) >= yPos && 
+         (xPos_old-tol) <= xPos && (yPos_old-tol) <= yPos) {
         idle_counter++;
       }else{
         idle_counter = 0;
@@ -221,30 +231,30 @@ class Planet{
     private void pulsate(){
       //hier die size ändern
       
-      if(size == 80){
+      if(size == sizeTopLimit){
         pulse_growing = false;
-      }else if(size == 50){
+      }else if(size == sizeLowerLimit){
         pulse_growing = true;
       }
       
-      if(pulse_growing == true && size < 80){
-        size++;
-      }else if(pulse_growing == false && size > 50){
-        size--;
+      if(pulse_growing == true && size < sizeTopLimit){
+        size+=2;
+      }else if(pulse_growing == false && size > sizeLowerLimit){
+        size-=2;
       }
     }
     
     private void grow(){
-      if(size < 80){
+      if(size < sizeTopLimit){
         if(idle_counter%10 == 0){
-          size++;
+          size+=2;
         }  
       }
     }
     
     private void resetSize(){
-      if(size > 50){
-        size--;
+      if(size > sizeLowerLimit){
+        size-=2;
       }
     }
     
