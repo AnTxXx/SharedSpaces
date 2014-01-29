@@ -1,5 +1,7 @@
 <?php
-
+/**
+ * Liefert die aktuellen Positoinsdaten als JSON
+ */
 require 'api.php';
 
 

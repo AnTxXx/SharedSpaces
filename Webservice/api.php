@@ -1,5 +1,12 @@
 <?php
- 
+
+/**
+ * 
+ * @author Lukas Gartlehner
+ * Kapselt Datenbankzugriff, HTTP-Headers und Response-Codes
+ * Stellt Methoden für die einzelnen Services zur Verfügung
+ */
+
 class SpacesAPI {
     private $db;
  
@@ -16,21 +23,25 @@ class SpacesAPI {
     }
 
 	
-    // circular movement -> one full circle every 8 sec.
+    /**
+     * Generiert Testdaten für beide Clients 
+     * Je nach auskommentierter Zeile zb. Kreisbewegung, auf und ab Bewegung ...
+     */
     function getCircularSkeleton() {
     	
     	
     	$osc1 = fmod(microtime(true), 8)/8; // Oscillator [0;0,8]
     	$osc2 = 2*($osc1)-1; // Oscillator [-0,8;0,8]
     	
-    	
-
+    	$rand1 = (rand (-5 , 8)/1000);
+    	$rand2 = (rand (-5 , 5)/1000);
+    	$rand3 = (rand (-5 , 5));
     	
     	
     	$json_result["client_ID1"]=array();
     	//$json_result["client_ID1"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => $osc2, "zPos" => $osc2, "orientation" => $osc1*360);
     	
-    	$json_result["client_ID1"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => 0.3, "zPos" => 0.3, "orientation" => 315);
+    	$json_result["client_ID1"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => 0.3-$rand1, "zPos" => 0.3 + $rand2, "orientation" => (315  + $rand2));
     	//$json_result["client_ID1"]["skeleton_ID2"] = array("skeleton_ID" => 2, "xPos" => -0.2, "zPos" => -0.2, "orientation" => 135);
     	
     	$r_size = 0.5;
@@ -40,7 +51,9 @@ class SpacesAPI {
     	$json_result["client_ID2"]=array();    	
     	//$json_result["client_ID2"]["skeleton_ID1"] = array("skeleton_ID" => 1, "xPos" => $r_size * cos($deg), "zPos" => $r_size * sin($deg), "orientation" => $osc1*360);
     	//$json_result["client_ID2"]["skeleton_ID1"] = array("skeleton_ID" => 2, "xPos" => -0.2, "zPos" => -0.2, "orientation" => 135);
-    	$json_result["client_ID2"]["skeleton_ID1"] = array("skeleton_ID" => 2, "xPos" => -0.2, "zPos" => -0.2, "orientation" => (135 + $osc1*18));
+    	$json_result["client_ID2"]["skeleton_ID1"] = array("skeleton_ID" => 2, "xPos" => -0.3, "zPos" => -0.7, "orientation" => (135 + $osc1*18));
+    	
+    	//$json_result["client_ID2"]["skeleton_ID2"] = array("skeleton_ID" => 88, "xPos" => -0.6, "zPos" => -0.6, "orientation" => 1);
     	
     	
     	$r_size = 0.5;
@@ -55,13 +68,14 @@ class SpacesAPI {
     }
     
     
-    // Main method to redeem a code
+    /**
+     * Erstellt einen JSON-String aus den aktuellen Daten in der DB
+     */
     function getAllSkeletons() {   	
     	
     	
     	$tstamp = gmdate('Y-m-d H:i:s', (strtotime("now") + 3580));
     	$query = 'SELECT client_ID, skeleton_ID, xPos, zPos, orientation, tstamp FROM skeletons WHERE tstamp > \'' . $tstamp . '\'';
-     	//echo $query;
     	
     	$stmt = $this->db->prepare($query);
     	$stmt->execute();
@@ -70,10 +84,7 @@ class SpacesAPI {
     	$json_result = array();
     	$skeleton_ii = 1;
     
-    	/* Dirty Hack
-    	 * due to a request of (bad) Michael
-    	* always add client 1 & 2 to array
-    	*/
+		// Client 1 und 2 werden immer erstellt, auch wenn diese keine Daten enthalten
     	$json_result["client_ID1"]=array();
     	$json_result["client_ID2"]=array();
     
@@ -97,11 +108,12 @@ class SpacesAPI {
     }
         
     
-    // Main method to redeem a code
+    /*
+     * Erstellt einen JSON-String mit ALLEN Daten aus der DB
+     */
     function stageGetAllSkeletons() {
     	 
     	$query = 'SELECT client_ID, skeleton_ID, xPos, zPos, orientation, tstamp FROM skeletons';
-    	//echo $query;
     	 
     	$stmt = $this->db->prepare($query);
     	$stmt->execute();
@@ -110,10 +122,7 @@ class SpacesAPI {
     	$json_result = array();
     	$skeleton_ii = 1;
     
-    	/* Dirty Hack
-    	 * due to a request of (bad) Michael
-    	* always add client 1 & 2 to array
-    	*/
+    	// Client 1 und 2 werden immer erstellt, auch wenn diese keine Daten enthalten
     	$json_result["client_ID1"]=array();
     	$json_result["client_ID2"]=array();
     
@@ -137,6 +146,9 @@ class SpacesAPI {
     }
     
     
+    /**
+     * Schreibt alle Skeletons eines POST Calls in die DB
+     */
 	function writeSkeletonsToDB() {	
 		
 		$json['data'] = json_decode(html_entity_decode($_POST['jsonString']),true);
@@ -167,11 +179,14 @@ class SpacesAPI {
 		}
 	}
     
+	
+	/**
+	 * 
+	 * @param int $status
+	 * @return string Der zugehörige Statuscode
+	 */
     function getStatusCodeMessage($status)
     {
-    	// these could be stored in a .ini file and loaded
-    	// via parse_ini_file()... however, this will suffice
-    	// for an example
     	$codes = Array(
     			100 => 'Continue',
     			101 => 'Switching Protocols',
@@ -219,7 +234,9 @@ class SpacesAPI {
     	return (isset($codes[$status])) ? $codes[$status] : '';
     }
     
-    // Helper method to send a HTTP response code/message
+    /**
+     * Erstellt einen Standard HTTP Response mit dem jeweiligen Statuscode -> 200-OK als Default
+     */
     function sendResponse($status = 200, $body = '', $content_type = 'text/html')
     {
     	$status_header = 'HTTP/1.1 ' . $status . ' ' . $this->getStatusCodeMessage($status);

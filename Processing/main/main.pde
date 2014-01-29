@@ -1,9 +1,9 @@
 //planet_handler
 
 // set to false for Live ENV
-private final boolean IS_DEBUG=true;
+private final boolean IS_DEBUG=false;
 private final boolean SHOW_LOCAL_SKEL=true;
-private final boolean MIRROR_REMOTE=true;
+private final boolean MIRROR_REMOTE=false;
 private final int BACKGROUND = 0;
 
 
@@ -28,6 +28,10 @@ private SolarSystem solarsystem = new SolarSystem(CANVAS_X, CANVAS_Y);
 void setup() {
   size(CANVAS_X, CANVAS_Y);
   ellipseMode(CENTER);
+  
+  //frameRate(30);
+  
+  
   thread("serverCall");
 }
 
@@ -63,6 +67,8 @@ void draw() {
   text("Client ID "+localClientID, 400, 20); 
   
   }
+  
+  //saveFrame("frames/######.tif");
 }
 
 public boolean isDebug() {

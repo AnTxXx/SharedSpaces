@@ -2,12 +2,12 @@ class Planet{
   
     private int colR=0, colG=0, colB=0; // COLOR
     private int xPos, yPos, direction;
+    private int scale=9;
+    private int size = scale*50;
+    private int sizeOrig = scale*50;
     
-    private int size = 50;
-    private int sizeOrig = 50;
-    
-    private int sizeTopLimit=100;
-    private int sizeLowerLimit=50;
+    private int sizeTopLimit=scale*100;
+    private int sizeLowerLimit = scale*50;
     
     private Moon moon;
     private int id;
